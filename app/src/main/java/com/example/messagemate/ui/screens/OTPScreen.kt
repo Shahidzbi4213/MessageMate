@@ -19,11 +19,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messagemate.R
+import com.example.messagemate.data.firebase.Response
 import com.example.messagemate.ui.components.PoweredComponent
 import com.example.messagemate.ui.components.TopImage
+import com.example.messagemate.ui.screens.destinations.OTPScreenDestination
+import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
 import com.example.messagemate.ui.theme.Green
+import com.example.messagemate.ui.viemodels.AuthViewModel
+import com.example.messagemate.utils.Extensions.toast
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 
 // Created by Shahid Iqbal on 2/28/2023.
@@ -35,6 +41,12 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
     var otpText by remember {
         mutableStateOf("")
     }
+
+    val authViewModel: AuthViewModel = koinViewModel()
+    val context = LocalContext.current
+
+
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -91,6 +103,9 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
 
                 Button(
                     onClick = {
+                        if (otpText.isNotBlank() && otpText.length == 6)
+                            authViewModel.verifyCode(otpText)
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,6 +121,19 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
 
         Spacer(modifier = Modifier.weight(1f))
         PoweredComponent(modifier = Modifier.align(Alignment.CenterHorizontally))
+
+        authViewModel.signUpState.collectAsState().value.apply {
+            when (this) {
+                Response.Empty -> Unit
+                is Response.Error -> error.toast(context)
+                Response.Loading -> "Loading".toast(context)
+                is Response.Success -> {
+                    //message.toast(context)
+                  //  navigator.navigate(ProfileScreenDestination)
+                }
+            }
+        }
+
     }
 }
 
@@ -134,4 +162,5 @@ private fun CharView(
         text = char,
         textAlign = TextAlign.Center
     )
+
 }

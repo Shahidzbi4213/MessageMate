@@ -6,18 +6,20 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.messagemate.ui.screens.LoginScreen
 import com.example.messagemate.ui.screens.MyApp
-import com.example.messagemate.ui.screens.OTPScreen
-import com.example.messagemate.ui.theme.MessageMateTheme
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        private var mainActivity: MainActivity? = null
+
+        fun getInstance() = mainActivity
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mainActivity = this
         setContent {
             MaterialTheme {
                 // A surface container using the 'background' color from the theme

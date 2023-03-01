@@ -3,11 +3,8 @@ package com.example.messagemate.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -20,17 +17,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.messagemate.R
+import com.example.messagemate.data.firebase.Response
+import com.example.messagemate.data.repository.AuthRepoImpl
 import com.example.messagemate.ui.components.PoweredComponent
 import com.example.messagemate.ui.components.TopImage
 import com.example.messagemate.ui.screens.destinations.OTPScreenDestination
 import com.example.messagemate.ui.theme.Green
 import com.example.messagemate.ui.theme.Purple80
+import com.example.messagemate.ui.viemodels.AuthViewModel
+import com.example.messagemate.utils.Extensions.toast
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
-
-// Created by Shahid Iqbal on 2/20/2023.
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Destination(start = true)
@@ -44,15 +45,20 @@ fun LoginScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator)
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+    val authViewModel: AuthViewModel = koinViewModel()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()) {
+
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxSize()
+    ) {
 
         TopImage(R.drawable.mobile_auth)
 
         Text(
             text = "Verify your Phone Number",
-            fontWeight = FontWeight.Bold, fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
             modifier = Modifier.padding(top = 15.dp)
         )
         Text(text = "We will send you code to verify you number", fontSize = 12.sp)
@@ -67,23 +73,19 @@ fun LoginScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator)
         ) {
             Text(
                 text = "Phone", fontWeight = FontWeight.Bold, modifier = Modifier.padding(
-                    top = 20.dp,
-                    start = 10.dp
+                    top = 20.dp, start = 10.dp
                 ), fontSize = 16.sp
             )
-            OutlinedTextField(
+            TextField(
                 value = phoneNumber,
                 onValueChange = {
-                    if (it.length < 11)
-                        phoneNumber = it
+                    if (it.length < 11) phoneNumber = it
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
                 ),
                 prefix = { Text(text = "+92") },
                 singleLine = true,
-                colors = TextFieldDefaults.textFieldColors(focusedIndicatorColor = Purple80),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 3.dp, start = 10.dp, end = 10.dp)
@@ -92,16 +94,17 @@ fun LoginScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator)
 
             Button(
                 onClick = {
-                    if (phoneNumber.isNotBlank())
-                        navigator.navigate(
-                            OTPScreenDestination
-                        )
+                    keyboardController?.hide()
+                    if (phoneNumber.isNotBlank() && phoneNumber.length == 10)
+                        authViewModel.createAccount(
+                            phoneNumber.let { "+92".plus(it) })
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 15.dp, start = 10.dp, end = 10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Green),
-                shape = RectangleShape, contentPadding = PaddingValues(14.dp)
+                shape = RectangleShape,
+                contentPadding = PaddingValues(14.dp)
             ) {
                 Text(text = "Send Code")
             }
@@ -109,5 +112,19 @@ fun LoginScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator)
 
         Spacer(modifier = Modifier.weight(1f))
         PoweredComponent(modifier = Modifier.align(Alignment.CenterHorizontally))
+
+        authViewModel.signUpState.collectAsState().value.apply {
+            when (this) {
+                Response.Empty -> Unit
+                is Response.Error -> error.toast(context)
+                Response.Loading -> "Loading".toast(context)
+                is Response.Success -> {
+                    message.toast(context)
+                    navigator.navigate(OTPScreenDestination)
+                }
+            }
+        }
     }
 }
+
+// Created by Shahid Iqbal on 2/20/2023.

@@ -15,7 +15,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp() {
-    Scaffold(modifier = Modifier)) {
+    Scaffold(modifier = Modifier) {
         DestinationsNavHost(
             navGraph = NavGraphs.root,
             modifier = Modifier
