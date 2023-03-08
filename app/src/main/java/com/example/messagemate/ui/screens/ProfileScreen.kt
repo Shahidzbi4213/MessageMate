@@ -4,34 +4,47 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import com.example.messagemate.data.firebase.Response
+import com.example.messagemate.model.User
+import com.example.messagemate.presentation.viemodels.AuthViewModel
 import com.example.messagemate.ui.components.PoweredComponent
 import com.example.messagemate.ui.components.ProfileImage
-import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
-import com.example.messagemate.ui.theme.Green
-import com.example.messagemate.ui.theme.Purple80
+import com.example.messagemate.ui.screens.destinations.MainScreenDestination
+import com.example.messagemate.ui.theme.MainBlue
+import com.example.messagemate.ui.theme.MainGray
+import com.example.messagemate.utils.Extensions.toast
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 // Created by Shahid Iqbal on 3/1/2023.
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Destination
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    navigator: DestinationsNavigator,
+    authViewModel: AuthViewModel = koinViewModel(),
+) {
 
     var profilePicUri by remember {
         mutableStateOf<Uri?>(null)
@@ -44,14 +57,34 @@ fun ProfileScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigato
         mutableStateOf("")
     }
 
+    var progressState by remember {
+        mutableStateOf(false)
+    }
+
+    var buttonText = "Setup Profile"
+    val userProfile = authViewModel.userProfile.collectAsState().value
+
+    if (userProfile != null) {
+        name = userProfile.name!!
+        description = userProfile.description ?: ""
+        profilePicUri = userProfile.profileUrl?.toUri()
+        buttonText = "Update Profile"
+    }
+
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = {
                 profilePicUri = it
             })
 
+
     Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         ProfileImage(
@@ -121,22 +154,50 @@ fun ProfileScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigato
         )
 
         Button(
+            enabled = !progressState,
             onClick = {
+                keyboardController?.hide()
+                val user = User(
+                    id = null,
+                    name = name,
+                    description = description,
+                    profileUrl = profilePicUri?.toString()
+                )
+                authViewModel.createProfile(user = user)
                 //navigator.navigate(ProfileScreenDestination)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, end = 10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Green),
+            colors = ButtonDefaults.buttonColors(containerColor = MainBlue),
             shape = RectangleShape,
             contentPadding = PaddingValues(15.dp)
         ) {
-            Text(text = "Setup Profile")
+            Text(text = buttonText)
         }
+
+
+        Spacer(modifier = Modifier.height(40.dp))
+        if (progressState) CircularProgressIndicator()
 
         Spacer(modifier = Modifier.weight(1f))
         PoweredComponent(modifier = Modifier.align(Alignment.CenterHorizontally))
-
     }
+
+    authViewModel.profileState.collectAsState().value.apply {
+        when (this) {
+            Response.Empty -> Unit
+            is Response.Error -> {
+                progressState = false
+                this.error.toast(context)
+            }
+            Response.Loading -> progressState = true
+            is Response.Success -> {
+                progressState = false
+                navigator.navigate(MainScreenDestination)
+            }
+        }
+    }
+
 }
 

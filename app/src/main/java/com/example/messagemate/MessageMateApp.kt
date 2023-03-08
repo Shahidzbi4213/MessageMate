@@ -2,6 +2,10 @@ package com.example.messagemate
 
 import android.app.Application
 import com.example.messagemate.data.modules.appModule
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -15,14 +19,15 @@ class MessageMateApp : Application() {
         super.onCreate()
 
         startKoin {
-            // Log Koin into Android logger
-            androidLogger()
             // Reference Android context
             androidContext(this@MessageMateApp)
             // Load modules
             modules(appModule)
 
         }
+
+        //Enable Offline Support
+        Firebase.database.setPersistenceEnabled(true)
 
     }
 }

@@ -8,7 +8,7 @@ sealed class Response<out T> {
 
     object Empty : Response<Nothing>()
     object Loading : Response<Nothing>()
-    data class Success<out T>(val message: T) : Response<T>()
+    data class Success<out T>(val message: T?) : Response<T>()
     data class Error(val error: String?) : Response<Nothing>()
 
 }

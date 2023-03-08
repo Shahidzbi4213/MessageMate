@@ -3,8 +3,7 @@
 
     <style name="Theme.MessageMate" parent="android:Theme.Material.Light.NoActionBar">
 
-       <item name="android:statusBarColor">#44BE49</item>
-
+       <item name="android:statusBarColor">#13213c</item>
 
     </style>
 </resources>

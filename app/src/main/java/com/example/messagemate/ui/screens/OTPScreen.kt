@@ -7,12 +7,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +30,7 @@ import com.example.messagemate.ui.components.TopImage
 import com.example.messagemate.ui.screens.destinations.OTPScreenDestination
 import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
 import com.example.messagemate.ui.theme.Green
-import com.example.messagemate.ui.viemodels.AuthViewModel
+import com.example.messagemate.presentation.viemodels.AuthViewModel
 import com.example.messagemate.utils.Extensions.toast
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -34,6 +39,7 @@ import org.koin.androidx.compose.koinViewModel
 
 // Created by Shahid Iqbal on 2/28/2023.
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Destination
 fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
@@ -42,9 +48,14 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
         mutableStateOf("")
     }
 
+    var progressState by remember {
+        mutableStateOf(false)
+    }
+
     val authViewModel: AuthViewModel = koinViewModel()
     val context = LocalContext.current
-
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
 
     Column(
@@ -59,7 +70,6 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
             fontWeight = FontWeight.Bold, fontSize = 22.sp,
             modifier = Modifier.padding(top = 15.dp)
         )
-
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.94f)
@@ -82,7 +92,12 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
                 )
 
                 BasicTextField(
-                    modifier = modifier.padding(top = 20.dp),
+                    modifier = modifier
+                        .padding(top = 20.dp)
+                        .focusRequester(focusRequester)
+                        .onGloballyPositioned {
+                            focusRequester.requestFocus()
+                        },
                     value = otpText,
                     onValueChange = {
                         otpText = it
@@ -102,7 +117,10 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
                 )
 
                 Button(
+                    enabled = !progressState,
                     onClick = {
+                        keyboardController?.hide()
+
                         if (otpText.isNotBlank() && otpText.length == 6)
                             authViewModel.verifyCode(otpText)
 
@@ -118,19 +136,25 @@ fun OTPScreen(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
             }
         }
 
+        Spacer(modifier = Modifier.height(40.dp))
+        if (progressState) CircularProgressIndicator()
 
         Spacer(modifier = Modifier.weight(1f))
         PoweredComponent(modifier = Modifier.align(Alignment.CenterHorizontally))
 
-        authViewModel.signUpState.collectAsState().value.apply {
+        authViewModel.otpState.collectAsState().value.apply {
             when (this) {
-                Response.Empty -> Unit
-                is Response.Error -> error.toast(context)
-                Response.Loading -> "Loading".toast(context)
-                is Response.Success -> {
-                    //message.toast(context)
-                  //  navigator.navigate(ProfileScreenDestination)
+                is Response.Empty -> Unit
+                is Response.Error -> {
+                    progressState = false
+                    error.toast(context)
                 }
+                Response.Loading -> progressState = true
+                is Response.Success -> {
+                    progressState = false
+                    navigator.navigate(ProfileScreenDestination)
+                }
+
             }
         }
 

@@ -8,6 +8,7 @@ plugins {
 android {
     namespace 'com.example.messagemate'
     compileSdk 33
+    compileSdkPreview 'UpsideDownCake'
 
     defaultConfig {
         applicationId "com.example.messagemate"
@@ -75,9 +76,10 @@ dependencies {
 
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:31.2.2')
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.3'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.4'
     implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
+    implementation "com.google.firebase:firebase-database-ktx:$firebase_version"
+    implementation "com.google.firebase:firebase-storage-ktx:$firebase_version"
 
     //Coil
     implementation 'io.coil-kt:coil-compose:2.2.2'
@@ -85,6 +87,8 @@ dependencies {
     //Compose ViewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
 
+    //Splash ViewModel
+    implementation 'androidx.core:core-splashscreen:1.1.0-alpha01'
 
 
 
