@@ -3,7 +3,10 @@ package com.example.messagemate.data.modules
 import com.example.messagemate.MainActivity
 import com.example.messagemate.data.repository.AuthRepo
 import com.example.messagemate.data.repository.AuthRepoImpl
+import com.example.messagemate.data.repository.ContactController
+import com.example.messagemate.data.repository.ContactControllerImpl
 import com.example.messagemate.presentation.viemodels.AuthViewModel
+import com.example.messagemate.presentation.viemodels.ContactViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
@@ -23,5 +26,7 @@ val appModule = module {
     single { Firebase.storage }
     factory { MainActivity.getInstance() }
     single<AuthRepo> { AuthRepoImpl(get(), get(), get(), get()) }
+    single<ContactController> { ContactControllerImpl(get()) }
     viewModel { AuthViewModel(get()) }
+    viewModel { ContactViewModel(get()) }
 }

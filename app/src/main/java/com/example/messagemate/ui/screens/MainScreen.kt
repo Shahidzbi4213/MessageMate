@@ -18,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messagemate.model.User
 import com.example.messagemate.ui.components.TopApp
+import com.example.messagemate.ui.screens.destinations.ChatDetailScreenDestination
+import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
 import com.example.messagemate.ui.screens.mainsub.Calls
 import com.example.messagemate.ui.screens.mainsub.Chats
 import com.example.messagemate.ui.screens.mainsub.Status
@@ -46,14 +49,14 @@ fun MainScreen(navigator: DestinationsNavigator) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopApp(navigator = navigator)
         Tabs(pagerState = pagerState, list = list)
-        TabsContent(pagerState = pagerState, list = list)
+        TabsContent(pagerState = pagerState, list = list,navigator)
     }
 
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsContent(pagerState: PagerState, list: List<TabItem>) {
+fun TabsContent(pagerState: PagerState, list: List<TabItem>, navigator: DestinationsNavigator) {
 
     HorizontalPager(
         pageCount = list.size,
@@ -62,7 +65,9 @@ fun TabsContent(pagerState: PagerState, list: List<TabItem>) {
     ) {
 
         when (it) {
-            0 -> Chats()
+            0 -> Chats{ user ->
+                navigator.navigate(ChatDetailScreenDestination(user))
+            }
             1 -> Status()
             2 -> Calls()
         }

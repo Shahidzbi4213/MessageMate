@@ -122,12 +122,18 @@ class AuthRepoImpl(
     private fun insertToDb(user: User, downloadUrl: Task<Uri>?) {
         downloadUrl?.addOnSuccessListener {
             val currentUser = user.copy(
-                id = auth.uid, profileUrl = it.toString()
+                id = auth.uid, profileUrl = it.toString(),
+                phoneNumber = auth.currentUser?.phoneNumber
             )
             dbData(currentUser)
         }?.addOnFailureListener {
             profileCreationState.value = Response.Error(it.localizedMessage)
-        } ?: dbData(currentUser = user.copy(id = auth.uid))
+        } ?: dbData(
+            currentUser = user.copy(
+                id = auth.uid,
+                phoneNumber = auth.currentUser?.phoneNumber
+            )
+        )
     }
 
     private fun dbData(currentUser: User) {

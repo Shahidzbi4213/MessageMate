@@ -1,5 +1,6 @@
 package com.example.messagemate.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -9,12 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.example.messagemate.R
 import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
 import com.example.messagemate.ui.theme.Green
@@ -52,18 +55,27 @@ fun TopApp(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
                 )
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                offset = DpOffset(x = 20.dp, y = 0.dp)
-            ) {
-                DropdownMenuItem(text = { Text(text = "Profile") }, onClick = {
-                    expanded = false
-                    goToProfile = true
-                })
-                Spacer(modifier = Modifier.height(5.dp))
-                DropdownMenuItem(text = { Text(text = "Logout") }, onClick = { expanded = false })
+            Box(modifier = Modifier, contentAlignment = Alignment.TopEnd) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    properties = PopupProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true,
+                        clippingEnabled = true
+                    ), modifier = Modifier.background(Color.White)
+                )
+                {
+                    DropdownMenuItem(text = { Text(text = "Profile") }, onClick = {
+                        expanded = false
+                        goToProfile = true
+                    })
+                    Spacer(modifier = Modifier.height(5.dp))
+                    DropdownMenuItem(
+                        text = { Text(text = "Logout") },
+                        onClick = { expanded = false })
 
+                }
             }
         })
 
