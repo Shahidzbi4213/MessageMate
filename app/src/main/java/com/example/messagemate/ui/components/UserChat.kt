@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.example.messagemate.ui.theme.MainBlack
 
 
 // Created by Shahid Iqbal on 3/9/2023.
@@ -31,7 +33,7 @@ fun UserChat() {
         ProfileImage(path = "",
             onClick = {},
             modifier = Modifier
-                .size(50.dp)
+                .size(30.dp)
                 .clip(CircleShape)
                 .constrainAs(profileImage) {
                     start.linkTo(parent.start)
@@ -46,7 +48,7 @@ fun UserChat() {
                 start.linkTo(profileImage.end)
             }
             .padding(start = 10.dp)
-            .fillMaxWidth(0.7f)
+            .fillMaxWidth(0.7f), color = MainBlack
         )
 
         Text(text = "Tap to chat", modifier = Modifier
@@ -64,6 +66,8 @@ fun UserChat() {
                 end.linkTo(parent.end)
             }
             .padding(3.dp))
+
+
     }
 
 }

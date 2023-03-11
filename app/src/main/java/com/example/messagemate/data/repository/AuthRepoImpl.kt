@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class AuthRepoImpl(
@@ -47,8 +48,7 @@ class AuthRepoImpl(
         private set
 
 
-    override var currentUserProfile: MutableStateFlow<User?> =
-        MutableStateFlow(null)
+    override var currentUserProfile: MutableStateFlow<User?> = MutableStateFlow(null)
         private set
 
 
@@ -96,7 +96,8 @@ class AuthRepoImpl(
         auth.signInWithCredential(credential).addOnCompleteListener(context) { task ->
 
             otpState.value = if (task.isSuccessful) Response.Success(task.result?.user)
-            else Response.Error(task.exception?.localizedMessage)
+            else if (task.exception is IOException) Response.Error("Connect to Internet")
+            else Response.Error(task.exception?.message)
 
         }
     }
@@ -111,7 +112,8 @@ class AuthRepoImpl(
                 imageRef.putFile(user.profileUrl.toUri()).addOnCompleteListener { task ->
                     if (task.isSuccessful) insertToDb(user, imageRef.downloadUrl)
                     else profileCreationState.value =
-                        Response.Error(task.exception?.localizedMessage)
+                        if (task.exception is IOException) Response.Error("Connect to Internet")
+                        else Response.Error(task.exception?.message)
 
                 }
             } else insertToDb(user, null)
@@ -122,7 +124,8 @@ class AuthRepoImpl(
     private fun insertToDb(user: User, downloadUrl: Task<Uri>?) {
         downloadUrl?.addOnSuccessListener {
             val currentUser = user.copy(
-                id = auth.uid, profileUrl = it.toString(),
+                id = auth.uid,
+                profileUrl = it.toString(),
                 phoneNumber = auth.currentUser?.phoneNumber
             )
             dbData(currentUser)
@@ -130,8 +133,7 @@ class AuthRepoImpl(
             profileCreationState.value = Response.Error(it.localizedMessage)
         } ?: dbData(
             currentUser = user.copy(
-                id = auth.uid,
-                phoneNumber = auth.currentUser?.phoneNumber
+                id = auth.uid, phoneNumber = auth.currentUser?.phoneNumber
             )
         )
     }
@@ -140,7 +142,8 @@ class AuthRepoImpl(
         db.child("users").child(currentUser.id!!).setValue(currentUser).addOnSuccessListener {
             profileCreationState.value = Response.Success("Profile Created")
         }.addOnFailureListener { e ->
-            profileCreationState.value = Response.Error(e.localizedMessage)
+            profileCreationState.value = if (e is IOException) Response.Error("Connect to Internet")
+            else Response.Error(e.message)
         }
     }
 

@@ -1,8 +1,7 @@
 package com.example.messagemate.data.repository
 
-import androidx.compose.runtime.MutableState
+import com.example.messagemate.model.User
 import com.example.messagemate.model.UserContact
-import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
@@ -10,7 +9,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 interface ContactController {
 
-    val contactList:MutableStateFlow<List<UserContact>>
+    val contactList: MutableStateFlow<List<UserContact>>
+    val appUser: MutableStateFlow<List<User?>>
 
     suspend fun readContacts()
+
+    suspend fun getAllAppUser()
+
 }

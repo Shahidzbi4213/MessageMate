@@ -1,5 +1,6 @@
 package com.example.messagemate
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,10 +10,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.messagemate.presentation.viemodels.ContactViewModel
 import com.example.messagemate.ui.screens.MyApp
 import com.example.messagemate.utils.Constants
+import com.example.messagemate.utils.Extensions.debug
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -41,9 +44,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     LaunchedEffect(key1 = this) {
                         permLauncher.launch(Constants.PERMS_ARRAY)
                     }
+
+                    if (ActivityCompat.checkSelfPermission(
+                            this,
+                            android.Manifest.permission.READ_CONTACTS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    )
+                        koinViewModel<ContactViewModel>().appUser.collectAsState().value.debug()
 
                     MyApp()
                 }

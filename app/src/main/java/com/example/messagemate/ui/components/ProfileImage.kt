@@ -16,7 +16,7 @@ import com.example.messagemate.R
 // Created by Shahid Iqbal on 3/1/2023.
 
 @Composable
-fun ProfileImage(path: Any?, modifier: Modifier = Modifier,onClick: () -> Unit) {
+fun ProfileImage(path: Any?, modifier: Modifier = Modifier, onClick: () -> Unit) {
 
     AsyncImage(
         model = path,
@@ -28,7 +28,7 @@ fun ProfileImage(path: Any?, modifier: Modifier = Modifier,onClick: () -> Unit) 
             .size(120.dp)
             .clip(CircleShape)
             .clickable {
-                onClick.invoke()
+                onClick()
             },
     )
 }

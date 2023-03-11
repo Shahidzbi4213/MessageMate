@@ -26,7 +26,7 @@ val appModule = module {
     single { Firebase.storage }
     factory { MainActivity.getInstance() }
     single<AuthRepo> { AuthRepoImpl(get(), get(), get(), get()) }
-    single<ContactController> { ContactControllerImpl(get()) }
+    single<ContactController> { ContactControllerImpl(get(), get(), get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { ContactViewModel(get()) }
 }

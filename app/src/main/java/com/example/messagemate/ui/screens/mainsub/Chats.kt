@@ -31,7 +31,7 @@ fun Chats(onClick: (user: User) -> Unit) {
                     onClick(User(name = "Bingo"))
                 }) {
                     UserChat()
-                    Divider()
+                    if (it != 0) Divider()
                 }
 
             }

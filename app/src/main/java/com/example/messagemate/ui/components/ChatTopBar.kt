@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,11 +14,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.example.messagemate.R
 import com.example.messagemate.model.User
 import com.example.messagemate.ui.theme.MainBlue
 
@@ -26,7 +29,7 @@ import com.example.messagemate.ui.theme.MainBlue
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ChatTopBar(user: User, onBackClick: () -> Unit) {
+fun ChatTopBar(user: User? = null, onBackClick: () -> Unit) {
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -34,7 +37,9 @@ fun ChatTopBar(user: User, onBackClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MainBlue),
+            .background(MainBlue)
+            .padding(top = 5.dp)
+            .height(60.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
@@ -49,7 +54,7 @@ fun ChatTopBar(user: User, onBackClick: () -> Unit) {
         Spacer(modifier = Modifier.width(5.dp))
 
         ProfileImage(
-            path = user.profileUrl, modifier = Modifier
+            path = user?.profileUrl, modifier = Modifier
                 .size(30.dp)
                 .clip(CircleShape)
 
@@ -57,7 +62,7 @@ fun ChatTopBar(user: User, onBackClick: () -> Unit) {
 
         Spacer(modifier = Modifier.width(5.dp))
         Text(
-            text = user.name ?: "No Name",
+            text = user?.name ?: "No Name",
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
@@ -69,6 +74,23 @@ fun ChatTopBar(user: User, onBackClick: () -> Unit) {
         )
 
         Spacer(modifier = Modifier.width(5.dp))
+
+        IconButton(onClick = { }) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_videocam_24),
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+
+        IconButton(onClick = { }) {
+            Icon(
+                imageVector = Icons.Default.Call,
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+
 
         IconButton(onClick = { expanded = !expanded }) {
             Icon(
@@ -99,10 +121,7 @@ fun ChatTopBar(user: User, onBackClick: () -> Unit) {
         }
 
         Spacer(modifier = Modifier.width(5.dp))
-
-
     }
-
-
 }
+
 

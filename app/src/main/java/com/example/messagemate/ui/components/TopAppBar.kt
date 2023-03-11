@@ -22,6 +22,7 @@ import com.example.messagemate.R
 import com.example.messagemate.ui.screens.destinations.ProfileScreenDestination
 import com.example.messagemate.ui.theme.Green
 import com.example.messagemate.ui.theme.MainBlue
+import com.example.messagemate.utils.Extensions.debug
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
@@ -40,7 +41,8 @@ fun TopApp(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
 
     TopAppBar(title = {
         Text(
-            text = stringResource(id = R.string.app_name), fontWeight = FontWeight.Bold,
+            text = stringResource(id = R.string.app_name),
+            fontWeight = FontWeight.Bold,
             color = Color.White
         )
     },
@@ -50,7 +52,8 @@ fun TopApp(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
 
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
-                    Icons.Default.MoreVert, contentDescription = "Localized description",
+                    Icons.Default.MoreVert,
+                    contentDescription = "Localized description",
                     tint = Color.White
                 )
             }
@@ -63,16 +66,20 @@ fun TopApp(modifier: Modifier = Modifier, navigator: DestinationsNavigator) {
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true,
                         clippingEnabled = true
-                    ), modifier = Modifier.background(Color.White)
-                )
-                {
+                    ),
+                    modifier = Modifier.background(Color.White)
+                ) {
                     DropdownMenuItem(text = { Text(text = "Profile") }, onClick = {
-                        expanded = false
                         goToProfile = true
+                        expanded = false
+
                     })
                     Spacer(modifier = Modifier.height(5.dp))
-                    DropdownMenuItem(
-                        text = { Text(text = "Logout") },
+                    DropdownMenuItem(text = { Text(text = "Users") },
+                        onClick = { expanded = false })
+
+                    Spacer(modifier = Modifier.height(5.dp))
+                    DropdownMenuItem(text = { Text(text = "Logout") },
                         onClick = { expanded = false })
 
                 }
